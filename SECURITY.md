@@ -20,6 +20,8 @@ Recommended staging sequence: back up the target, run `supabase migration list`,
 
 The complete operator checklist, backup procedure, smoke tests, and restore plan are in `STAGING_VERIFICATION.md`.
 
+The officer mobile workflow requires migration `006_officer_mobile_workflows.sql` after `005`. Field reports are intentionally isolated from operational incidents, risk calculation, historical evidence, and automatic deployment. Validate the app with `mobile/MANUAL_TEST_CHECKLIST.md` in disposable staging before any field use.
+
 ### Officer API
 
 `POST /api/officers/:officerId/notes` accepts `{ note, junction_id?, incident_id? }` with the signed officer bearer token. `GET /api/officers/:officerId/assignments` returns only that authenticated officer's accepted or modified assignment. Location updates and notes derive identity from the verified JWT, never from request bodies.

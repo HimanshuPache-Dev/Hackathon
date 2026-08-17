@@ -4,7 +4,7 @@ This runbook is for a disposable Supabase staging project only. It does not auth
 
 ## 1. Readiness verdict
 
-The SQL files are statically ready for staging in this order: `001`, `002`, `004`, `005`. Both test scripts start a transaction and end with `rollback`, so successful test execution does not retain their test mutations.
+The SQL files are statically ready for staging in this order: `001`, `002`, `004`, `005`, `006`. All SQL test scripts start a transaction and end with `rollback`, so successful test execution does not retain their test mutations.
 
 Stop before applying anything unless all of these are true:
 
@@ -80,6 +80,7 @@ Any duplicate result is a stop condition. Do not delete or rewrite records autom
 - [ ] Migration `003` is intentionally absent.
 - [ ] `004_security_and_consistency_fixes.sql`: constraints, unique workflow indexes, expanded historical immutability, decision/arrival/resolution RPCs.
 - [ ] `005_atomic_operations_and_realtime_auth.sql`: operational notes, atomic simulation/location/note RPCs, commander-only browser read policies.
+- [ ] `006_officer_mobile_workflows.sql`: officer assignment acknowledgements and isolated field reports; no risk or historical-data mutation.
 - [ ] `supabase migration list` shows no unexpected remote-only/local-only divergence.
 - [ ] The backup checklist is complete.
 - [ ] The preflight duplicate queries return no rows.
@@ -95,11 +96,12 @@ If migration history is out of sync, stop. Do not run `migration repair` until t
 
 ## 5. SQL verification checklist
 
-Run both rollback-wrapped scripts:
+Run all rollback-wrapped scripts:
 
 ```powershell
 psql $env:STAGING_DATABASE_URL -v ON_ERROR_STOP=1 -f supabase/tests/security-and-consistency.sql
 psql $env:STAGING_DATABASE_URL -v ON_ERROR_STOP=1 -f supabase/tests/atomic-operations.sql
+psql $env:STAGING_DATABASE_URL -v ON_ERROR_STOP=1 -f supabase/tests/officer-mobile-workflows.sql
 ```
 
 - [ ] Historical-field mutation was rejected.
