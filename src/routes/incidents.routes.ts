@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { supabase, assertDatabase } from '../config/supabase';
 import { calculateRiskScore } from '../risk/calculator';
 import { createRecommendation } from '../services/recommendation-engine';
-import { requireCommander } from '../middleware/auth.middleware';
+import { requireCommander } from '../middleware/commander-auth';
 const router = Router();
 
 async function recalculate(junctionId: string, incident: number) {

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { supabase, assertDatabase } from '../config/supabase';
-import { requireCommander } from '../middleware/auth.middleware';
+import { requireCommander } from '../middleware/commander-auth';
 const router = Router();
 router.get('/', async (_req, res, next) => { try { const data = assertDatabase(await supabase.from('recommendations').select('*,junctions(name,current_risk_score),officers(name,badge_code)').eq('status', 'PENDING').order('deployment_priority', { ascending: false })); res.json({ success: true, data }); } catch (error) { next(error); } });
 router.use(requireCommander);
