@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { supabase, assertDatabase } from '../config/supabase';
 import { requireCommander } from '../middleware/commander-auth';
 const router = Router();
-router.get('/', async (_req, res, next) => { try { const data = assertDatabase(await supabase.from('recommendations').select('*,junctions(name,current_risk_score),officers(name,badge_code)').eq('status', 'PENDING').order('deployment_priority', { ascending: false })); res.json({ success: true, data }); } catch (error) { next(error); } });
+router.get('/', async (_req, res, next) => { try { const data = assertDatabase(await supabase.from('recommendations').select('*,junctions(name,current_risk_score,current_risk_level),officers(name,badge_code,current_junction_name,latitude,longitude)').eq('status', 'PENDING').order('deployment_priority', { ascending: false })); res.json({ success: true, data }); } catch (error) { next(error); } });
 router.use(requireCommander);
 async function decide(id: string, decision: string, notes?: string) {
   const recommendation: any = assertDatabase(await supabase.from('recommendations').update({ status: decision, commander_decision_at: new Date().toISOString(), commander_notes: notes }).eq('id', id).select().single());

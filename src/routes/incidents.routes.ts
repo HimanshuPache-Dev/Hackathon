@@ -4,6 +4,7 @@ import { calculateRiskScore } from '../risk/calculator';
 import { createRecommendation } from '../services/recommendation-engine';
 import { requireCommander } from '../middleware/commander-auth';
 const router = Router();
+router.get('/', async (_req,res,next)=>{try{const data=assertDatabase(await supabase.from('incidents').select('*,junctions(junction_id,current_risk_score,current_risk_level)').order('reported_at',{ascending:false}));res.json({success:true,data})}catch(error){next(error)}});
 
 async function recalculate(junctionId: string, incident: number) {
   const junction: any = assertDatabase(await supabase.from('junctions').select('*').eq('id', junctionId).single());

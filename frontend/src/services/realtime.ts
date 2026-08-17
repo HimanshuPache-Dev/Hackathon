@@ -6,6 +6,6 @@ export function subscribeToOperations(onChange:()=>void):()=>void {
   const accessToken = localStorage.getItem('safeflow_token');
   if (accessToken) client.realtime.setAuth(accessToken);
   const channel: RealtimeChannel = client.channel('safeflow-dashboard');
-  ['junctions','officers','incidents','recommendations','realtime_locations'].forEach((table) => channel.on('postgres_changes',{event:'*',schema:'public',table},onChange));
+  ['junctions','officers','incidents','recommendations','realtime_locations','decision_logs'].forEach((table) => channel.on('postgres_changes',{event:'*',schema:'public',table},onChange));
   channel.subscribe(); return () => { client.removeChannel(channel); };
 }

@@ -9,6 +9,7 @@ import incidentsRoutes from './routes/incidents.routes';
 import junctionsRoutes from './routes/junctions.routes';
 import officersRoutes from './routes/officers.routes';
 import recommendationsRoutes from './routes/recommendations.routes';
+import decisionsRoutes from './routes/decisions.routes';
 
 const app = express();
 app.use(helmet());
@@ -21,6 +22,7 @@ app.use('/api/junctions', junctionsRoutes);
 app.use('/api/officers', officersRoutes);
 app.use('/api/incidents', incidentsRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
+app.use('/api/decisions', decisionsRoutes);
 app.use('/api/baseline', baselineRoutes);
 app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(error);
