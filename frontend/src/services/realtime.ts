@@ -1,11 +1,5 @@
-import { createClient, RealtimeChannel } from '@supabase/supabase-js';
-const url = import.meta.env.VITE_SUPABASE_URL; const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const client = url && key ? createClient(url,key) : null;
-export function subscribeToOperations(onChange:()=>void):()=>void {
-  if (!client) return () => undefined;
-  const accessToken = localStorage.getItem('safeflow_token');
-  if (accessToken) client.realtime.setAuth(accessToken);
-  const channel: RealtimeChannel = client.channel('safeflow-dashboard');
-  ['junctions','officers','incidents','recommendations','realtime_locations','decision_logs'].forEach((table) => channel.on('postgres_changes',{event:'*',schema:'public',table},onChange));
-  channel.subscribe(); return () => { client.removeChannel(channel); };
-}
+import { createClient,RealtimeChannel } from '@supabase/supabase-js';
+const url=import.meta.env.VITE_SUPABASE_URL;const key=import.meta.env.VITE_SUPABASE_ANON_KEY;const client=url&&key?createClient(url,key):null;let activeChannel:RealtimeChannel|null=null;let subscribers=0;
+export type RealtimeStatus='CONNECTING'|'SUBSCRIBED'|'CHANNEL_ERROR'|'TIMED_OUT'|'CLOSED'|'UNCONFIGURED';
+function publish(status:RealtimeStatus){window.dispatchEvent(new CustomEvent('safeflow:realtime-status',{detail:status}))}
+export function subscribeToOperations(onChange:()=>void):()=>void{if(!client){publish('UNCONFIGURED');return()=>undefined}subscribers++;if(activeChannel)client.removeChannel(activeChannel);const token=localStorage.getItem('safeflow_token');if(token)client.realtime.setAuth(token);publish('CONNECTING');activeChannel=client.channel('safeflow-dashboard');['junctions','officers','incidents','recommendations','realtime_locations','decision_logs'].forEach(table=>activeChannel!.on('postgres_changes',{event:'*',schema:'public',table},onChange));activeChannel.subscribe(status=>publish(status as RealtimeStatus));return()=>{subscribers=Math.max(0,subscribers-1);if(!subscribers&&activeChannel){client.removeChannel(activeChannel);activeChannel=null;publish('CLOSED')}}}

@@ -44,7 +44,8 @@ export default function OperationsMap({ junctions, officers, selectedId, onSelec
         element.setAttribute('aria-label', `${junction.name}, risk ${junction.current_risk_score}`);
         element.innerHTML = `<span>${Math.round(junction.current_risk_score)}</span>`;
         element.onclick = () => onSelect(junction);
-        const popup = new maplibregl.Popup({ offset: 22, closeButton: false }).setHTML(`<strong>${junction.name}</strong><small>${junction.current_risk_level} · ${junction.is_unmanned?'Unmanned':`${junction.assigned_officers} deployed`}</small>`);
+        const popupContent=document.createElement('div');const title=document.createElement('strong');title.textContent=junction.name;const detail=document.createElement('small');detail.textContent=`${junction.current_risk_level} · ${junction.is_unmanned?'Unmanned':`${junction.assigned_officers} deployed`}`;popupContent.append(title,detail);
+        const popup = new maplibregl.Popup({ offset: 22, closeButton: false }).setDOMContent(popupContent);
         markersRef.current.push(new Marker({ element }).setLngLat([Number(junction.longitude), Number(junction.latitude)]).setPopup(popup).addTo(map));
         bounds.extend([Number(junction.longitude), Number(junction.latitude)]);
       });

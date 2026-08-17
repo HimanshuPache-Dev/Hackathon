@@ -1,16 +1,8 @@
-import { Router } from 'express';
-import { supabase, assertDatabase } from '../config/supabase';
-import { requireCommander } from '../middleware/commander-auth';
-const router = Router();
-router.get('/', async (_req, res, next) => { try { const data = assertDatabase(await supabase.from('recommendations').select('*,junctions(name,current_risk_score,current_risk_level),officers(name,badge_code,current_junction_name,latitude,longitude)').eq('status', 'PENDING').order('deployment_priority', { ascending: false })); res.json({ success: true, data }); } catch (error) { next(error); } });
-router.use(requireCommander);
-async function decide(id: string, decision: string, notes?: string) {
-  const recommendation: any = assertDatabase(await supabase.from('recommendations').update({ status: decision, commander_decision_at: new Date().toISOString(), commander_notes: notes }).eq('id', id).select().single());
-  assertDatabase(await supabase.from('decision_logs').insert({ recommendation_id: id, decision, decision_notes: notes }));
-  if (decision === 'ACCEPTED') assertDatabase(await supabase.from('officers').update({ status: 'EN_ROUTE', available: false, current_junction_id: recommendation.junction_id }).eq('id', recommendation.officer_id));
-  return recommendation;
-}
-router.post('/:id/accept', async (req, res, next) => { try { res.json({ success: true, data: await decide(req.params.id, 'ACCEPTED', req.body.notes) }); } catch (error) { next(error); } });
-router.post('/:id/reject', async (req, res, next) => { try { res.json({ success: true, data: await decide(req.params.id, 'REJECTED', req.body.reason) }); } catch (error) { next(error); } });
-router.post('/:id/modify', async (req, res, next) => { try { const data = assertDatabase(await supabase.from('recommendations').update({ status: 'MODIFIED', officer_id: req.body.new_officer_id ?? req.body.newOfficerId, junction_id: req.body.new_junction_id ?? req.body.newJunctionId, commander_decision_at: new Date().toISOString() }).eq('id', req.params.id).select().single()); assertDatabase(await supabase.from('decision_logs').insert({ recommendation_id: req.params.id, decision: 'MODIFIED', decision_notes: req.body.notes })); res.json({ success: true, data }); } catch (error) { next(error); } });
+import { Router } from 'express';import { assertDatabase,supabase } from '../config/supabase';import { CommanderRequest,requireCommander } from '../middleware/commander-auth';import { PublicError } from '../middleware/error-handler';import { modificationSchema,notesSchema,rejectionSchema,uuidParams,validate } from '../middleware/validate';
+const router=Router();router.use(requireCommander);
+router.get('/',async(_req,res,next)=>{try{const data=assertDatabase(await supabase.from('recommendations').select('*,junctions(name,current_risk_score,current_risk_level),officers(name,badge_code,current_junction_name,latitude,longitude)').eq('status','PENDING').order('deployment_priority',{ascending:false}));res.json({success:true,data})}catch(error){next(error)}});
+async function decide(req:CommanderRequest,res:any,next:any,decision:'ACCEPTED'|'REJECTED'|'MODIFIED'){try{const body=req.body;const{data,error}=await supabase.rpc('decide_recommendation',{p_recommendation_id:req.params.id,p_decision:decision,p_commander_id:req.commanderId!,p_notes:body.notes??body.reason??null,p_replacement_officer_id:body.newOfficerId??null,p_replacement_junction_id:body.newJunctionId??null});if(error)throw error;if(data?.code==='CONFLICT')throw new PublicError(409,data.message);if(data?.code==='NOT_FOUND')throw new PublicError(404,data.message);return res.json({success:true,data})}catch(error){return next(error)}}
+router.post('/:id/accept',validate({params:uuidParams,body:notesSchema}),(req,res,next)=>decide(req,res,next,'ACCEPTED'));
+router.post('/:id/reject',validate({params:uuidParams,body:rejectionSchema}),(req,res,next)=>decide(req,res,next,'REJECTED'));
+router.post('/:id/modify',validate({params:uuidParams,body:modificationSchema}),(req,res,next)=>decide(req,res,next,'MODIFIED'));
 export default router;

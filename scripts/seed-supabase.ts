@@ -4,10 +4,13 @@ import { junctions } from '../data/junctions';
 import { officers } from '../data/officers';
 import { scenarioInputs } from '../data/scenarios';
 import { calculateRiskScore } from '../src/risk/calculator';
+import bcrypt from 'bcryptjs';
 
 const url = process.env.SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) throw new Error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY before seeding');
+const officerPin = process.env.DEMO_OFFICER_PIN;
+if (!officerPin) throw new Error('Set DEMO_OFFICER_PIN before seeding officers');
 const supabase = createClient(url, key);
 
 async function seed() {
@@ -31,13 +34,13 @@ async function seed() {
     const updateResult = await supabase.from('junctions').update(operational).eq('junction_id', junction_id);
     if (updateResult.error) throw updateResult.error;
   }
-  const officerRows = officers.map((item: any, index: number) => {
+  const officerRows = await Promise.all(officers.map(async (item: any, index: number) => {
     const station = junctions.find((junction) => junction.id === item.currentJunctionId);
     return ({
     name: item.name ?? `Traffic Officer ${index + 1}`, badge_code: item.badgeCode ?? item.badge_code ?? `NP-${String(index + 1).padStart(3, '0')}`,
-    pin_hash: item.pin ?? '1234', status: item.status ?? 'OFF_DUTY', available: item.status === 'AVAILABLE',
+    pin_hash: await bcrypt.hash(officerPin, 12), status: item.status ?? 'OFF_DUTY', available: item.status === 'AVAILABLE',
     latitude: item.latitude ?? station?.latitude, longitude: item.longitude ?? station?.longitude,
-  }); });
+  }); }));
   const officerResult = await supabase.from('officers').upsert(officerRows, { onConflict: 'badge_code', ignoreDuplicates: true });
   if (officerResult.error) throw officerResult.error;
   console.log(`Seeded ${junctionRows.length} evidence-backed junctions and ${officerRows.length} officers.`);

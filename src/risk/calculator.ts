@@ -32,6 +32,9 @@ export interface RiskCalculationResult {
  * @returns Risk score (0-100), level, and factor breakdown
  */
 export function calculateRiskScore(inputs: RiskInputs): RiskCalculationResult {
+  const normalized: RiskInputs = Object.fromEntries(
+    Object.entries(inputs).map(([key, value]) => [key, Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0]),
+  ) as unknown as RiskInputs;
   // Weights from the workbook
   const WEIGHTS = {
     accidentHistory: 0.30,
@@ -45,13 +48,13 @@ export function calculateRiskScore(inputs: RiskInputs): RiskCalculationResult {
 
   // Calculate weighted contributions
   const contributions = {
-    accidentHistory: inputs.accidentHistory * WEIGHTS.accidentHistory * 100,
-    congestion: inputs.congestion * WEIGHTS.congestion * 100,
-    violations: inputs.violations * WEIGHTS.violations * 100,
-    obstructions: inputs.obstructions * WEIGHTS.obstructions * 100,
-    weather: inputs.weather * WEIGHTS.weather * 100,
-    events: inputs.events * WEIGHTS.events * 100,
-    incidents: inputs.incidents * WEIGHTS.incidents * 100,
+    accidentHistory: normalized.accidentHistory * WEIGHTS.accidentHistory * 100,
+    congestion: normalized.congestion * WEIGHTS.congestion * 100,
+    violations: normalized.violations * WEIGHTS.violations * 100,
+    obstructions: normalized.obstructions * WEIGHTS.obstructions * 100,
+    weather: normalized.weather * WEIGHTS.weather * 100,
+    events: normalized.events * WEIGHTS.events * 100,
+    incidents: normalized.incidents * WEIGHTS.incidents * 100,
   };
 
   // Sum all contributions
@@ -75,49 +78,49 @@ export function calculateRiskScore(inputs: RiskInputs): RiskCalculationResult {
   {
     code: 'A',  // ✅ CORRECT
     name: 'Accident History',
-    value: inputs.accidentHistory,
+    value: normalized.accidentHistory,
     weight: WEIGHTS.accidentHistory,
     contribution: contributions.accidentHistory,
   },
   {
     code: 'C',
     name: 'Congestion',
-    value: inputs.congestion,
+    value: normalized.congestion,
     weight: WEIGHTS.congestion,
     contribution: contributions.congestion,
   },
   {
     code: 'V',
     name: 'Violations',
-    value: inputs.violations,
+    value: normalized.violations,
     weight: WEIGHTS.violations,
     contribution: contributions.violations,
   },
   {
     code: 'O',
     name: 'Obstructions',
-    value: inputs.obstructions,
+    value: normalized.obstructions,
     weight: WEIGHTS.obstructions,
     contribution: contributions.obstructions,
   },
   {
     code: 'W',
     name: 'Weather',
-    value: inputs.weather,
+    value: normalized.weather,
     weight: WEIGHTS.weather,
     contribution: contributions.weather,
   },
   {
     code: 'E',
     name: 'Events',
-    value: inputs.events,
+    value: normalized.events,
     weight: WEIGHTS.events,
     contribution: contributions.events,
   },
   {
     code: 'I',
     name: 'Current Incident',
-    value: inputs.incidents,
+    value: normalized.incidents,
     weight: WEIGHTS.incidents,
     contribution: contributions.incidents,
   },
