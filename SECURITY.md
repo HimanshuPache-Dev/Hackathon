@@ -18,6 +18,8 @@ Apply migrations to a disposable or staging project in numeric order: `001`, `00
 
 Recommended staging sequence: back up the target, run `supabase migration list`, review `supabase db diff`, apply with `supabase db push`, then execute both SQL files in `supabase/tests/` inside the disposable project. Confirm commander JWT `app_metadata`, recommendation decisions, arrival, multi-incident resolution, location updates, and Realtime before production promotion. Database rollback is restore-from-backup; do not attempt to undo these security migrations by deleting operational records.
 
+The complete operator checklist, backup procedure, smoke tests, and restore plan are in `STAGING_VERIFICATION.md`.
+
 ### Officer API
 
 `POST /api/officers/:officerId/notes` accepts `{ note, junction_id?, incident_id? }` with the signed officer bearer token. `GET /api/officers/:officerId/assignments` returns only that authenticated officer's accepted or modified assignment. Location updates and notes derive identity from the verified JWT, never from request bodies.
