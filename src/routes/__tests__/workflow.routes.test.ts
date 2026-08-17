@@ -1,0 +1,15 @@
+import express from 'express';import request from 'supertest';
+const rpc=jest.fn();
+jest.mock('../../config/supabase',()=>({supabase:{rpc:(...args:unknown[])=>rpc(...args)},assertDatabase:(value:unknown)=>value}));
+jest.mock('../../middleware/commander-auth',()=>({requireCommander:(req:any,_res:any,next:any)=>{req.commanderId='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';next()}}));
+jest.mock('../../middleware/officer-auth',()=>({requireOfficer:(req:any,_res:any,next:any)=>{req.officerId=req.headers['x-test-officer']??req.params.id;next()},requireMatchingOfficer:(req:any,res:any,next:any)=>req.officerId===req.params.id?next():res.status(403).json({success:false}),OfficerRequest:{}}));
+import incidents from '../incidents.routes';import recommendations from '../recommendations.routes';import officers from '../officers.routes';import { errorHandler,requestId } from '../../middleware/error-handler';
+const id='11111111-1111-4111-8111-111111111111';
+function app(){const value=express();value.use(express.json());value.use(requestId);value.use('/incidents',incidents);value.use('/recommendations',recommendations);value.use('/officers',officers);value.use(errorHandler);return value}
+describe('workflow RPC HTTP contracts',()=>{beforeEach(()=>rpc.mockReset());
+  test('incident simulation delegates the complete workflow to one RPC',async()=>{rpc.mockResolvedValue({data:{code:'OK',incident:{id},junction:{current_incident:.8},recommendation:null},error:null});const response=await request(app()).post('/incidents/simulate').send({junction_id:id,severity:.8,incident_type:'COLLISION'});expect(response.status).toBe(201);expect(rpc).toHaveBeenCalledTimes(1);expect(rpc.mock.calls[0][0]).toBe('simulate_incident_atomic')});
+  test('repeat incident resolution maps conflict to 409',async()=>{rpc.mockResolvedValue({data:{code:'CONFLICT',message:'Incident has already been resolved'},error:null});expect((await request(app()).post(`/incidents/${id}/resolve`)).status).toBe(409)});
+  test('decision success and repeated decision use atomic RPC contract',async()=>{rpc.mockResolvedValueOnce({data:{code:'OK'},error:null}).mockResolvedValueOnce({data:{code:'CONFLICT',message:'already decided'},error:null});expect((await request(app()).post(`/recommendations/${id}/accept`).send({})).status).toBe(200);expect((await request(app()).post(`/recommendations/${id}/accept`).send({})).status).toBe(409);expect(rpc.mock.calls[0][0]).toBe('decide_recommendation')});
+  test('arrival success and repeat conflict are controlled',async()=>{rpc.mockResolvedValueOnce({data:{code:'OK'},error:null}).mockResolvedValueOnce({data:{code:'CONFLICT',message:'already arrived'},error:null});expect((await request(app()).post(`/officers/${id}/arrival`).send({junction_id:id})).status).toBe(200);expect((await request(app()).post(`/officers/${id}/arrival`).send({junction_id:id})).status).toBe(409)});
+  test('cross-officer request returns 403 before RPC',async()=>{const response=await request(app()).post(`/officers/${id}/arrival`).set('x-test-officer','22222222-2222-4222-8222-222222222222').send({junction_id:id});expect(response.status).toBe(403);expect(rpc).not.toHaveBeenCalled()});
+});
