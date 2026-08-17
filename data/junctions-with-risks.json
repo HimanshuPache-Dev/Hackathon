@@ -1,0 +1,222 @@
+[
+  {
+    "junctionId": "J001",
+    "name": "Chhatrapati Square",
+    "latitude": 21.11083,
+    "longitude": 79.07011,
+    "historicalScore": 100,
+    "historicalTier": "CRITICAL",
+    "currentScore": 52,
+    "currentLevel": "MEDIUM",
+    "explanation": "Chhatrapati Square has a MEDIUM risk score of 52.0 primarily due to very high historical severity (30.0 points), moderate congestion (12.5 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J002",
+    "name": "Juni Pardi Naka Chowk",
+    "latitude": 21.15139,
+    "longitude": 79.14889,
+    "historicalScore": 81,
+    "historicalTier": "CRITICAL",
+    "currentScore": 46.3,
+    "currentLevel": "MEDIUM",
+    "explanation": "Juni Pardi Naka Chowk has a MEDIUM risk score of 46.3 primarily due to very high historical severity (24.3 points), moderate congestion (12.5 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J003",
+    "name": "Jhansi Rani Square",
+    "latitude": 21.14124,
+    "longitude": 79.08029,
+    "historicalScore": 81,
+    "historicalTier": "CRITICAL",
+    "currentScore": 46.3,
+    "currentLevel": "MEDIUM",
+    "explanation": "Jhansi Rani Square has a MEDIUM risk score of 46.3 primarily due to very high historical severity (24.3 points), moderate congestion (12.5 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J004",
+    "name": "Jingabai Takli to Zhanda Chowk",
+    "latitude": 21.18761,
+    "longitude": 79.07888,
+    "historicalScore": 79,
+    "historicalTier": "CRITICAL",
+    "currentScore": 45.7,
+    "currentLevel": "MEDIUM",
+    "explanation": "Jingabai Takli to Zhanda Chowk has a MEDIUM risk score of 45.7 primarily due to high historical severity (23.7 points), moderate congestion (12.5 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J005",
+    "name": "Chikli Square",
+    "latitude": 21.1623,
+    "longitude": 79.14106,
+    "historicalScore": 72,
+    "historicalTier": "HIGH",
+    "currentScore": 43.6,
+    "currentLevel": "MEDIUM",
+    "explanation": "Chikli Square has a MEDIUM risk score of 43.6 primarily due to high historical severity (21.6 points), moderate congestion (12.5 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J006",
+    "name": "Maruti Seva Square, Kamptee Road",
+    "latitude": 21.18391,
+    "longitude": 79.11693,
+    "historicalScore": 63,
+    "historicalTier": "HIGH",
+    "currentScore": 40.9,
+    "currentLevel": "MEDIUM",
+    "explanation": "Maruti Seva Square, Kamptee Road has a MEDIUM risk score of 40.9 primarily due to high historical severity (18.9 points), moderate congestion (12.5 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J007",
+    "name": "Shitla Mata Square",
+    "latitude": 21.12194,
+    "longitude": 79.12111,
+    "historicalScore": 63,
+    "historicalTier": "HIGH",
+    "currentScore": 40.9,
+    "currentLevel": "MEDIUM",
+    "explanation": "Shitla Mata Square has a MEDIUM risk score of 40.9 primarily due to high historical severity (18.9 points), moderate congestion (12.5 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J008",
+    "name": "Kharbi Chowk",
+    "latitude": 21.12425,
+    "longitude": 79.13848,
+    "historicalScore": 46,
+    "historicalTier": "HIGH",
+    "currentScore": 35.8,
+    "currentLevel": "MEDIUM",
+    "explanation": "Kharbi Chowk has a MEDIUM risk score of 35.8 primarily due to moderate historical severity (13.8 points), moderate congestion (12.5 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J009",
+    "name": "Mhalgi Nagar Square",
+    "latitude": 21.10766,
+    "longitude": 79.11961,
+    "historicalScore": 42,
+    "historicalTier": "HIGH",
+    "currentScore": 34.6,
+    "currentLevel": "LOW",
+    "explanation": "Mhalgi Nagar Square has a LOW risk score of 34.6 primarily due to moderate historical severity (12.6 points), moderate congestion (12.5 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J010",
+    "name": "Ravi Nagar",
+    "latitude": 21.14744,
+    "longitude": 79.0562,
+    "historicalScore": 41,
+    "historicalTier": "HIGH",
+    "currentScore": 34.3,
+    "currentLevel": "LOW",
+    "explanation": "Ravi Nagar has a LOW risk score of 34.3 primarily due to moderate congestion (12.5 points), moderate historical severity (12.3 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J011",
+    "name": "Manewada Square",
+    "latitude": 21.10522,
+    "longitude": 79.10247,
+    "historicalScore": 39,
+    "historicalTier": "MEDIUM",
+    "currentScore": 33.7,
+    "currentLevel": "LOW",
+    "explanation": "Manewada Square has a LOW risk score of 33.7 primarily due to moderate congestion (12.5 points), low historical severity (11.7 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J012",
+    "name": "Chinchbhavan Square",
+    "latitude": 21.0675,
+    "longitude": 79.05833,
+    "historicalScore": 34,
+    "historicalTier": "MEDIUM",
+    "currentScore": 32.2,
+    "currentLevel": "LOW",
+    "explanation": "Chinchbhavan Square has a LOW risk score of 32.2 primarily due to moderate congestion (12.5 points), low historical severity (10.2 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J013",
+    "name": "Rajiv Nagar Intersection",
+    "latitude": 21.10365,
+    "longitude": 78.99068,
+    "historicalScore": 33,
+    "historicalTier": "MEDIUM",
+    "currentScore": 31.9,
+    "currentLevel": "LOW",
+    "explanation": "Rajiv Nagar Intersection has a LOW risk score of 31.9 primarily due to moderate congestion (12.5 points), low historical severity (9.9 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J014",
+    "name": "Wathoda Square",
+    "latitude": 21.13361,
+    "longitude": 79.14333,
+    "historicalScore": 33,
+    "historicalTier": "MEDIUM",
+    "currentScore": 31.9,
+    "currentLevel": "LOW",
+    "explanation": "Wathoda Square has a LOW risk score of 31.9 primarily due to moderate congestion (12.5 points), low historical severity (9.9 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J015",
+    "name": "Mayo Square",
+    "latitude": 21.15317,
+    "longitude": 79.09403,
+    "historicalScore": 31,
+    "historicalTier": "MEDIUM",
+    "currentScore": 31.3,
+    "currentLevel": "LOW",
+    "explanation": "Mayo Square has a LOW risk score of 31.3 primarily due to moderate congestion (12.5 points), low historical severity (9.3 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J016",
+    "name": "Shrinagar Chowk",
+    "latitude": 21.10771,
+    "longitude": 79.07994,
+    "historicalScore": 31,
+    "historicalTier": "MEDIUM",
+    "currentScore": 31.3,
+    "currentLevel": "LOW",
+    "explanation": "Shrinagar Chowk has a LOW risk score of 31.3 primarily due to moderate congestion (12.5 points), low historical severity (9.3 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J017",
+    "name": "NEERI Point",
+    "latitude": 21.11933,
+    "longitude": 79.0684,
+    "historicalScore": 30,
+    "historicalTier": "ELEVATED",
+    "currentScore": 31,
+    "currentLevel": "LOW",
+    "explanation": "NEERI Point has a LOW risk score of 31.0 primarily due to moderate congestion (12.5 points), low historical severity (9.0 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J018",
+    "name": "Gorewada to New Katol Toll Naka",
+    "latitude": 21.18361,
+    "longitude": 79.03417,
+    "historicalScore": 30,
+    "historicalTier": "ELEVATED",
+    "currentScore": 31,
+    "currentLevel": "LOW",
+    "explanation": "Gorewada to New Katol Toll Naka has a LOW risk score of 31.0 primarily due to moderate congestion (12.5 points), low historical severity (9.0 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J019",
+    "name": "Wadi T Point (Dhamna)",
+    "latitude": 21.15287,
+    "longitude": 79.00227,
+    "historicalScore": 29,
+    "historicalTier": "ELEVATED",
+    "currentScore": 30.7,
+    "currentLevel": "LOW",
+    "explanation": "Wadi T Point (Dhamna) has a LOW risk score of 30.7 primarily due to moderate congestion (12.5 points), low historical severity (8.7 points), and low traffic violations (4.5 points)."
+  },
+  {
+    "junctionId": "J020",
+    "name": "Auto Hub to Toll Naka",
+    "latitude": 21.15352,
+    "longitude": 79.00419,
+    "historicalScore": 28,
+    "historicalTier": "ELEVATED",
+    "currentScore": 30.4,
+    "currentLevel": "LOW",
+    "explanation": "Auto Hub to Toll Naka has a LOW risk score of 30.4 primarily due to moderate congestion (12.5 points), low historical severity (8.4 points), and low traffic violations (4.5 points)."
+  }
+]
