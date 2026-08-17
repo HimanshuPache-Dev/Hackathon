@@ -1,70 +1,17 @@
-import { Router, Request, Response } from 'express';
-import { db } from '../db-mock';
-
+import { Router } from 'express';
+import { supabase, assertDatabase } from '../config/supabase';
 const router = Router();
-
-// GET baseline comparison
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (_req, res, next) => {
   try {
-    // Get all junctions
-    const allJunctionsResult = await db.query(
-      `SELECT 
-        id,
-        name,
-        current_risk_score,
-        risk_level,
-        officer_count
-      FROM junctions`
-    );
-
-    // Filter HIGH/CRITICAL manually (score >= 60)
-    const highRiskJunctions = allJunctionsResult.rows.filter((j: any) => j.current_risk_score >= 60);
-
-    const totalHighRisk = highRiskJunctions.length;
-    const staticCovered = highRiskJunctions.filter((j: any) => j.officer_count > 0).length;
-    const staticUnmanned = totalHighRisk - staticCovered;
-
-    // Mock recommendations count
-    const recommendedCount = 2;
-    const recommendedCovered = staticCovered + recommendedCount;
-    const recommendedUnmanned = Math.max(0, totalHighRisk - recommendedCovered);
-
-    const staticCoverage = totalHighRisk > 0 ? (staticCovered / totalHighRisk) * 100 : 0;
-    const recommendedCoverage = totalHighRisk > 0 ? (recommendedCovered / totalHighRisk) * 100 : 0;
-
-    const staticResponseTime = staticUnmanned > 0 ? 12 : 5;
-    const recommendedResponseTime = recommendedUnmanned > 0 ? 7 : 5;
-
-    const metrics = {
-      staticHighRiskCoverage: Math.round(staticCoverage),
-      recommendedHighRiskCoverage: Math.round(recommendedCoverage),
-      staticUnmannedCount: staticUnmanned,
-      recommendedUnmannedCount: recommendedUnmanned,
-      staticResponseTime,
-      recommendedResponseTime,
-      officerMovementCount: recommendedCount,
-    };
-
-    const summary = `AI-assisted deployment improves high-risk coverage by ${
-      metrics.recommendedHighRiskCoverage - metrics.staticHighRiskCoverage
-    }%, reduces unmanned junctions by ${
-      metrics.staticUnmannedCount - metrics.recommendedUnmannedCount
-    }, and decreases response time by ${
-      metrics.staticResponseTime - metrics.recommendedResponseTime
-    } minutes.`;
-
-    res.json({
-      success: true,
-      data: {
-        metrics,
-        summary,
-        source: 'SIMULATION RESULTS',
-      },
-    });
-  } catch (error) {
-    console.error('Baseline error:', error);
-    res.status(500).json({ success: false, error: 'Failed to calculate baseline' });
-  }
+    const junctions: any[] = assertDatabase(await supabase.from('junctions').select('id,current_risk_level,assigned_officers,is_unmanned'));
+    const highRisk = junctions.filter((j) => ['HIGH', 'CRITICAL'].includes(j.current_risk_level));
+    const covered = highRisk.filter((j) => !j.is_unmanned).length;
+    const pending: any[] = assertDatabase(await supabase.from('recommendations').select('junction_id,travel_time_minutes').eq('status', 'PENDING'));
+    const recommendedIds = new Set(pending.map((item) => item.junction_id));
+    const recommendedCovered = highRisk.filter((j) => !j.is_unmanned || recommendedIds.has(j.id)).length;
+    const pct = (value: number) => highRisk.length ? Math.round(value / highRisk.length * 100) : 0;
+    const avgTravel = pending.length ? Math.round(pending.reduce((sum, item) => sum + item.travel_time_minutes, 0) / pending.length) : 0;
+    res.json({ success: true, data: { metrics: { staticHighRiskCoverage: pct(covered), recommendedHighRiskCoverage: pct(recommendedCovered), staticUnmannedCount: highRisk.length - covered, recommendedUnmannedCount: highRisk.length - recommendedCovered, staticResponseTime: 12, recommendedResponseTime: avgTravel || 7, officerMovementCount: pending.length }, summary: 'Live comparison calculated from junction coverage and pending human-review recommendations.', source: 'Supabase live tables' } });
+  } catch (error) { next(error); }
 });
-
 export default router;

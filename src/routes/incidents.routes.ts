@@ -1,99 +1,28 @@
-import { Router, Request, Response } from 'express';
-import { db } from '../db-mock';
-
+import { Router } from 'express';
+import { supabase, assertDatabase } from '../config/supabase';
+import { calculateRiskScore } from '../risk/calculator';
+import { createRecommendation } from '../services/recommendation-engine';
+import { requireCommander } from '../middleware/auth.middleware';
 const router = Router();
 
-// POST simulate incident
-router.post('/simulate', async (req: Request, res: Response) => {
+async function recalculate(junctionId: string, incident: number) {
+  const junction: any = assertDatabase(await supabase.from('junctions').select('*').eq('id', junctionId).single());
+  const result = calculateRiskScore({ accidentHistory: junction.historical_risk_score / 100, congestion: junction.current_congestion ?? 0, violations: junction.current_violations ?? 0, obstructions: junction.current_obstruction ?? 0, weather: junction.current_weather ?? 0, events: junction.current_event ?? 0, incidents: incident });
+  return assertDatabase(await supabase.from('junctions').update({ current_incident: incident, current_risk_score: Math.round(result.score), current_risk_level: result.level }).eq('id', junctionId).select().single());
+}
+
+router.post('/simulate', requireCommander, async (req, res, next) => {
   try {
-    const { junctionId, severity } = req.body;
-
-    const incident = await db.query(
-      `INSERT INTO incidents (
-        junction_id,
-        junction_name,
-        type,
-        severity,
-        severity_value,
-        is_simulated,
-        status,
-        created_at,
-        expires_at
-      ) VALUES ($1, $2, $3, $4, $5, true, 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '15 minutes')
-      RETURNING *`,
-      [junctionId, 'Juni Pardi Naka Chowk', 'Collision', severity, 1.0]
-    );
-
-    await db.query(
-      `UPDATE junctions
-       SET incident_severity = 1.0,
-           updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1`,
-      [junctionId]
-    );
-
-    const junctionsResult = await db.query(
-      `SELECT * FROM junctions ORDER BY current_risk_score DESC`
-    );
-
-    res.json({
-      success: true,
-      data: {
-        incident: incident.rows[0],
-        junctions: junctionsResult.rows,
-      },
-      message: 'Incident simulated successfully',
-    });
-  } catch (error) {
-    console.error('Error simulating incident:', error);
-    res.status(500).json({ success: false, error: 'Failed to simulate incident' });
-  }
+    const { junction_id, junctionId, severity = 0.8, incident_type = 'COLLISION' } = req.body;
+    const id = junction_id ?? junctionId;
+    const junction: any = assertDatabase(await supabase.from('junctions').select('*').or(`id.eq.${id},junction_id.eq.${id}`).single());
+    const numericSeverity = typeof severity === 'number' ? severity : ({ MINOR: .25, MAJOR: .5, SEVERE: .7, CRITICAL: .8 } as any)[severity] ?? .8;
+    const incident = assertDatabase(await supabase.from('incidents').insert({ junction_id: junction.id, junction_name: junction.name, severity: numericSeverity, incident_type, is_simulated: true }).select().single());
+    const updated: any = await recalculate(junction.id, numericSeverity);
+    const recommendation = updated.is_unmanned && ['HIGH', 'CRITICAL'].includes(updated.current_risk_level) ? await createRecommendation(updated) : null;
+    res.status(201).json({ success: true, data: { incident, junction: updated, recommendation } });
+  } catch (error) { next(error); }
 });
-
-// POST resolve incident
-router.post('/:id/resolve', async (req: Request, res: Response) => {
-  try {
-    const incidentResult = await db.query(
-      `SELECT junction_id FROM incidents WHERE id = $1`,
-      [req.params.id]
-    );
-
-    if (incidentResult.rows.length > 0) {
-      const junctionId = incidentResult.rows[0].junction_id;
-
-      await db.query(
-        `UPDATE junctions
-         SET incident_severity = 0,
-             updated_at = CURRENT_TIMESTAMP
-         WHERE id = $1`,
-        [junctionId]
-      );
-
-      await db.query(
-        `UPDATE incidents
-         SET status = 'RESOLVED'
-         WHERE id = $1`,
-        [req.params.id]
-      );
-    }
-
-    res.json({ success: true, message: 'Incident resolved' });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Failed to resolve incident' });
-  }
-});
-
-// GET active incidents
-router.get('/active', async (req: Request, res: Response) => {
-  try {
-    const result = await db.query(
-      `SELECT * FROM incidents WHERE status = 'ACTIVE' ORDER BY created_at DESC`
-    );
-
-    res.json({ success: true, data: result.rows });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Failed to fetch incidents' });
-  }
-});
-
+router.post('/:id/resolve', async (req, res, next) => { try { const incident: any = assertDatabase(await supabase.from('incidents').update({ status: 'RESOLVED', resolved_at: new Date().toISOString() }).eq('id', req.params.id).select().single()); await recalculate(incident.junction_id, 0); res.json({ success: true, data: incident }); } catch (error) { next(error); } });
+router.get('/active', async (_req, res, next) => { try { const data = assertDatabase(await supabase.from('incidents').select('*').eq('status', 'ACTIVE').order('reported_at', { ascending: false })); res.json({ success: true, data }); } catch (error) { next(error); } });
 export default router;

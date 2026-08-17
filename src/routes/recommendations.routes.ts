@@ -1,121 +1,16 @@
-import { Router, Request, Response } from 'express';
-import { db } from '../db-mock';
-
+import { Router } from 'express';
+import { supabase, assertDatabase } from '../config/supabase';
+import { requireCommander } from '../middleware/auth.middleware';
 const router = Router();
-
-// GET all recommendations
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const result = await db.query(
-      `SELECT * FROM recommendations WHERE status = 'PENDING' ORDER BY deployment_priority DESC`
-    );
-
-    res.json({ success: true, data: result.rows });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Failed to fetch recommendations' });
-  }
-});
-
-// POST accept recommendation
-router.post('/:id/accept', async (req: Request, res: Response) => {
-  try {
-    const recResult = await db.query(
-      `SELECT * FROM recommendations WHERE id = $1`,
-      [req.params.id]
-    );
-
-    if (recResult.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Recommendation not found' });
-    }
-
-    const recommendation = recResult.rows[0];
-
-    await db.query(
-      `UPDATE officers
-       SET status = 'DEPLOYED',
-           assigned_junction_id = $1,
-           updated_at = CURRENT_TIMESTAMP
-       WHERE id = $2`,
-      [recommendation.junction_id, recommendation.officer_id]
-    );
-
-    await db.query(
-      `UPDATE junctions
-       SET officer_count = officer_count + 1
-       WHERE id = $1`,
-      [recommendation.junction_id]
-    );
-
-    await db.query(
-      `UPDATE recommendations
-       SET status = 'ACCEPTED',
-           resolved_at = CURRENT_TIMESTAMP
-       WHERE id = $1`,
-      [req.params.id]
-    );
-
-    await db.query(
-      `INSERT INTO decision_logs (recommendation_id, decision, decided_at)
-       VALUES ($1, 'ACCEPT', CURRENT_TIMESTAMP)`,
-      [req.params.id]
-    );
-
-    res.json({ success: true, message: 'Recommendation accepted' });
-  } catch (error) {
-    console.error('Error accepting recommendation:', error);
-    res.status(500).json({ success: false, error: 'Failed to accept recommendation' });
-  }
-});
-
-// POST reject recommendation
-router.post('/:id/reject', async (req: Request, res: Response) => {
-  try {
-    const { reason } = req.body;
-
-    await db.query(
-      `UPDATE recommendations
-       SET status = 'REJECTED',
-           resolved_at = CURRENT_TIMESTAMP
-       WHERE id = $1`,
-      [req.params.id]
-    );
-
-    await db.query(
-      `INSERT INTO decision_logs (recommendation_id, decision, reason, decided_at)
-       VALUES ($1, 'REJECT', $2, CURRENT_TIMESTAMP)`,
-      [req.params.id, reason || 'No reason provided']
-    );
-
-    res.json({ success: true, message: 'Recommendation rejected' });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Failed to reject recommendation' });
-  }
-});
-
-// POST modify recommendation
-router.post('/:id/modify', async (req: Request, res: Response) => {
-  try {
-    const { newOfficerId, newJunctionId } = req.body;
-
-    await db.query(
-      `UPDATE recommendations
-       SET officer_id = $1,
-           junction_id = $2,
-           status = 'MODIFIED'
-       WHERE id = $3`,
-      [newOfficerId, newJunctionId, req.params.id]
-    );
-
-    await db.query(
-      `INSERT INTO decision_logs (recommendation_id, decision, decided_at)
-       VALUES ($1, 'MODIFY', CURRENT_TIMESTAMP)`,
-      [req.params.id]
-    );
-
-    res.json({ success: true, message: 'Recommendation modified' });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Failed to modify recommendation' });
-  }
-});
-
+router.get('/', async (_req, res, next) => { try { const data = assertDatabase(await supabase.from('recommendations').select('*,junctions(name,current_risk_score),officers(name,badge_code)').eq('status', 'PENDING').order('deployment_priority', { ascending: false })); res.json({ success: true, data }); } catch (error) { next(error); } });
+router.use(requireCommander);
+async function decide(id: string, decision: string, notes?: string) {
+  const recommendation: any = assertDatabase(await supabase.from('recommendations').update({ status: decision, commander_decision_at: new Date().toISOString(), commander_notes: notes }).eq('id', id).select().single());
+  assertDatabase(await supabase.from('decision_logs').insert({ recommendation_id: id, decision, decision_notes: notes }));
+  if (decision === 'ACCEPTED') assertDatabase(await supabase.from('officers').update({ status: 'EN_ROUTE', available: false, current_junction_id: recommendation.junction_id }).eq('id', recommendation.officer_id));
+  return recommendation;
+}
+router.post('/:id/accept', async (req, res, next) => { try { res.json({ success: true, data: await decide(req.params.id, 'ACCEPTED', req.body.notes) }); } catch (error) { next(error); } });
+router.post('/:id/reject', async (req, res, next) => { try { res.json({ success: true, data: await decide(req.params.id, 'REJECTED', req.body.reason) }); } catch (error) { next(error); } });
+router.post('/:id/modify', async (req, res, next) => { try { const data = assertDatabase(await supabase.from('recommendations').update({ status: 'MODIFIED', officer_id: req.body.new_officer_id ?? req.body.newOfficerId, junction_id: req.body.new_junction_id ?? req.body.newJunctionId, commander_decision_at: new Date().toISOString() }).eq('id', req.params.id).select().single()); assertDatabase(await supabase.from('decision_logs').insert({ recommendation_id: req.params.id, decision: 'MODIFIED', decision_notes: req.body.notes })); res.json({ success: true, data }); } catch (error) { next(error); } });
 export default router;
