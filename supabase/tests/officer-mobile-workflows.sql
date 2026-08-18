@@ -1,5 +1,8 @@
 -- Run only after migration 006 on a disposable database with seeded junction/officer fixtures.
 begin;
+\pset tuples_only on
+select '1..1';
+set local role postgres;
 do $$ declare j uuid;o uuid;i uuid;r uuid;result jsonb;risk_before numeric;history_before jsonb;begin
   select id,current_risk_score,to_jsonb(x) into j,risk_before,history_before from (select id,current_risk_score,historical_crashes,fatalities,major_injuries,minor_injuries,weighted_severity_index,historical_risk_score,historical_tier,evidence_url,evidence_note from public.junctions limit 1) x;
   select id into o from public.officers limit 1;if j is null or o is null then raise exception 'Seeded junction and officer required';end if;
@@ -16,4 +19,5 @@ do $$ declare j uuid;o uuid;i uuid;r uuid;result jsonb;risk_before numeric;histo
   if (select to_jsonb(x) from (select id,current_risk_score,historical_crashes,fatalities,major_injuries,minor_injuries,weighted_severity_index,historical_risk_score,historical_tier,evidence_url,evidence_note from public.junctions where id=j) x) is distinct from history_before then raise exception 'Field report modified protected junction data';end if;
   update public.officers set status='OFF_DUTY',available=false where id=o;result:=public.submit_officer_field_report(o,'OTHER',.2,'Should be rejected while off duty',21.1458,79.0882,null);if result->>'code'<>'CONFLICT' then raise exception 'Off-duty field report accepted';end if;
 end $$;
+select 'ok 1 - officer mobile workflow assertions passed';
 rollback;

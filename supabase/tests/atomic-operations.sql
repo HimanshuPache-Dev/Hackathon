@@ -1,6 +1,9 @@
 -- Run only after migrations 001, 002, 004 and 005 on a disposable database.
 -- Every block is wrapped in a transaction and rolled back.
 begin;
+\pset tuples_only on
+select '1..2';
+set local role postgres;
 do $$ declare j uuid; first_i uuid; second_i uuid; result jsonb; begin
   select id into j from public.junctions limit 1;
   if j is null then raise exception 'Fixture junction required'; end if;
@@ -15,9 +18,11 @@ do $$ declare j uuid; first_i uuid; second_i uuid; result jsonb; begin
   result:=public.simulate_incident_atomic(j,.9,'COLLISION',null,true);
   if (result->'junction'->>'current_incident')::numeric<>.9 then raise exception 'higher incident did not become maximum'; end if;
 end $$;
+select 'ok 1 - incident atomicity assertions passed';
 rollback;
 
 begin;
+set local role postgres;
 do $$ declare j uuid;o uuid;r uuid;i uuid;result jsonb;recorded timestamptz:=clock_timestamp();before_count integer;after_count integer;begin
   select id into j from public.junctions limit 1;select id into o from public.officers limit 1;
   if j is null or o is null then raise exception 'Fixture junction and officer required';end if;
@@ -28,6 +33,7 @@ do $$ declare j uuid;o uuid;r uuid;i uuid;result jsonb;recorded timestamptz:=clo
   result:=public.decide_recommendation(r,'ACCEPTED',null,null,null,null);if result->>'code'<>'OK' then raise exception 'accept failed';end if;
   if (select count(*) from public.decision_logs where recommendation_id=r)<>1 then raise exception 'audit count failed';end if;
   result:=public.decide_recommendation(r,'ACCEPTED',null,null,null,null);if result->>'code'<>'CONFLICT' then raise exception 'duplicate decision accepted';end if;
+  result:=public.respond_to_officer_assignment(o,r,'ACCEPTED',null);if result->>'code'<>'OK' then raise exception 'officer acceptance failed';end if;
   select assigned_officers into before_count from public.junctions where id=j;
   result:=public.confirm_officer_arrival(o,j);if result->>'code'<>'OK' then raise exception 'arrival failed';end if;
   select assigned_officers into after_count from public.junctions where id=j;if after_count<before_count then raise exception 'coverage regressed';end if;
@@ -36,4 +42,5 @@ do $$ declare j uuid;o uuid;r uuid;i uuid;result jsonb;recorded timestamptz:=clo
   update public.officers set status='AVAILABLE' where id=o;result:=public.update_officer_location_atomic(o,21.1458,79.0882,5,recorded);if result->>'code'<>'OK' then raise exception 'location failed';end if;
   result:=public.update_officer_location_atomic(o,21.1458,79.0882,5,recorded);if (select count(*) from public.realtime_locations where officer_id=o and timestamp=recorded)<>1 then raise exception 'location idempotency failed';end if;
 end $$;
+select 'ok 2 - decision arrival and location atomicity assertions passed';
 rollback;

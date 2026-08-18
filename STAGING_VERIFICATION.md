@@ -4,7 +4,7 @@ This runbook is for a disposable Supabase staging project only. It does not auth
 
 ## 1. Readiness verdict
 
-The SQL files are statically ready for staging in this order: `001`, `002`, `004`, `005`, `006`. All SQL test scripts start a transaction and end with `rollback`, so successful test execution does not retain their test mutations.
+The SQL files are ready in this order: `001`, `002`, `003`, `004`, `005`, `006`. Migration `003` is the approved legacy decision-log reconciliation. All SQL test scripts start a transaction and end with `rollback`, so successful test execution does not retain their test mutations.
 
 Stop before applying anything unless all of these are true:
 
@@ -16,6 +16,10 @@ Stop before applying anything unless all of these are true:
 - Only one operator will run `supabase db push`.
 
 Static-review limitations: these scripts have not been executed by PostgreSQL in this repository. Runtime SQL validity, existing-data compatibility, RLS behavior, Realtime publication state, and transaction rollback must be proven in disposable staging.
+
+Migration `006` is a once-only forward migration. Do not rerun it manually or rewrite it after it has been applied. It can conflict with partially pre-created columns, named constraints, functions, tables, or RLS policies, so inspect the target schema and migration history first. Existing accepted recommendations receive the migration's default officer-response state and must be reviewed during staging verification. If an idempotency or compatibility correction is required, create a later migration after separate approval; do not edit the applied `006` history.
+
+Commander web Realtime still requires staging verification. Mobile assignment synchronization intentionally uses authenticated polling: migration `006` does not add its mobile tables to a Realtime publication. Mobile Realtime, push notifications, and background GPS are not implemented.
 
 ## 2. Database backup checklist
 
@@ -77,13 +81,16 @@ Any duplicate result is a stop condition. Do not delete or rewrite records autom
 
 - [ ] `001_initial_schema.sql`: base tables, initial historical trigger, RLS, scoring configuration, initial Realtime publication.
 - [ ] `002_data_provenance.sql`: provenance fields, numeric coverage gap, decision-log publication.
-- [ ] Migration `003` is intentionally absent.
+- [ ] `003_legacy_decision_log_reconciliation.sql`: archive legacy duplicate decision logs and retain one canonical active log per recommendation.
 - [ ] `004_security_and_consistency_fixes.sql`: constraints, unique workflow indexes, expanded historical immutability, decision/arrival/resolution RPCs.
 - [ ] `005_atomic_operations_and_realtime_auth.sql`: operational notes, atomic simulation/location/note RPCs, commander-only browser read policies.
 - [ ] `006_officer_mobile_workflows.sql`: officer assignment acknowledgements and isolated field reports; no risk or historical-data mutation.
 - [ ] `supabase migration list` shows no unexpected remote-only/local-only divergence.
 - [ ] The backup checklist is complete.
 - [ ] The preflight duplicate queries return no rows.
+- [ ] Existing schema has no conflicting `006` columns, named constraints, functions, tables, or RLS policies.
+- [ ] Existing accepted recommendations and their default officer-response state have been reviewed.
+- [ ] Explicit production migration approval has been recorded separately after all staging tests pass.
 
 Apply to disposable staging only:
 
@@ -159,6 +166,15 @@ Push-Location mobile
 npm run typecheck
 Pop-Location
 ```
+
+### Commander Realtime status display
+
+- [ ] `CONNECTING` displays **Connecting** and does not display **LIVE**.
+- [ ] `SUBSCRIBED` displays **Realtime linked** with the detail **Database updates refresh automatically**.
+- [ ] `CHANNEL_ERROR`, `TIMED_OUT`, and `CLOSED` display **Realtime unavailable** with the detail **Refresh manually or retry connection**.
+- [ ] `UNCONFIGURED` displays **Realtime not configured** with the detail **Refresh manually or retry connection**.
+- [ ] The status detail is available from the dashboard status tooltip.
+- [ ] Manual Refresh remains available when Realtime is unavailable or unconfigured.
 
 ## 7. Rollback and restore plan
 

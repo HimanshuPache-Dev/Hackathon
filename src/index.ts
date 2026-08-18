@@ -11,6 +11,7 @@ import officersRoutes from './routes/officers.routes';
 import recommendationsRoutes from './routes/recommendations.routes';
 import decisionsRoutes from './routes/decisions.routes';
 import { errorHandler,requestId } from './middleware/error-handler';
+import { supabase } from './config/supabase';
 
 const app = express();
 app.use(helmet());
@@ -20,7 +21,7 @@ app.use(cors({origin:(origin,callback)=>{if(!origin||allowedOrigins.includes(ori
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('tiny'));
 app.use(requestId);
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', database: 'supabase', timestamp: new Date().toISOString() }));
+app.get('/api/health',async(_req,res)=>{try{const{error}=await supabase.from('junctions').select('id',{head:true,count:'exact'}).limit(1);if(error)throw error;return res.json({status:'ok',database:'connected',timestamp:new Date().toISOString()})}catch{return res.status(503).json({status:'down',database:'unavailable',error:'Cannot connect to database'})}});
 app.use('/api/auth', authRoutes);
 app.use('/api/junctions', junctionsRoutes);
 app.use('/api/officers', officersRoutes);

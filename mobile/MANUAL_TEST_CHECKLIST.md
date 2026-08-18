@@ -8,6 +8,11 @@ Use demo-only staging accounts and a disposable staging project with migrations 
 - [ ] JWT exists only in Expo SecureStore and never appears on screen or in logs.
 - [ ] Expired/invalid JWT produces 401, clears the secure session, stops tracking/polling, and returns to login.
 - [ ] Logout clears the session and stops tracking/polling.
+- [ ] Successful logout while on duty calls authenticated Stop Duty, waits for success, leaves the server OFF_DUTY, stops tracking/polling, clears SecureStore, and returns to login.
+- [ ] A Stop Duty API failure stops local tracking, preserves the secure session, warns that server duty may remain active, and offers Retry and Force Local Logout.
+- [ ] Force Local Logout requires confirmation, clearly warns that server duty may remain active, and then clears the secure local session without claiming Stop Duty succeeded.
+- [ ] Logout while already off duty removes local tracking/polling and the secure session without calling Stop Duty.
+- [ ] Logout after an expired JWT stops local tracking/polling, clears SecureStore, and returns to login without claiming server duty ended.
 - [ ] Officer A cannot call duty, location, notes, assignment, arrival, or report routes for Officer B.
 
 ## Duty and foreground location
