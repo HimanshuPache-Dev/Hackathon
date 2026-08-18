@@ -34,15 +34,22 @@ async function seed() {
     const updateResult = await supabase.from('junctions').update(operational).eq('junction_id', junction_id);
     if (updateResult.error) throw updateResult.error;
   }
+  const seededJunctions:any[]=await (async()=>{const{data,error}=await supabase.from('junctions').select('id,junction_id,name,latitude,longitude');if(error)throw error;return data??[]})();
+  const junctionByCode=new Map(seededJunctions.map(item=>[item.junction_id,item]));
   const officerRows = await Promise.all(officers.map(async (item: any, index: number) => {
-    const station = junctions.find((junction) => junction.id === item.currentJunctionId);
+    const station = junctionByCode.get(item.currentJunctionId);
     return ({
     name: item.name ?? `Traffic Officer ${index + 1}`, badge_code: item.badgeCode ?? item.badge_code ?? `NP-${String(index + 1).padStart(3, '0')}`,
     pin_hash: await bcrypt.hash(officerPin, 12), status: item.status ?? 'OFF_DUTY', available: item.status === 'AVAILABLE',
+    current_junction_id:station?.id??null,current_junction_name:station?.name??null,
     latitude: item.latitude ?? station?.latitude, longitude: item.longitude ?? station?.longitude,
   }); }));
-  const officerResult = await supabase.from('officers').upsert(officerRows, { onConflict: 'badge_code', ignoreDuplicates: true });
-  if (officerResult.error) throw officerResult.error;
+  for(const row of officerRows){
+    const{data:existing,error:lookupError}=await supabase.from('officers').select('id').eq('badge_code',row.badge_code).maybeSingle();
+    if(lookupError)throw lookupError;
+    if(existing){const{pin_hash,...operational}=row;const{error}=await supabase.from('officers').update(operational).eq('id',existing.id);if(error)throw error}
+    else{const{error}=await supabase.from('officers').insert(row);if(error)throw error}
+  }
   console.log(`Seeded ${junctionRows.length} evidence-backed junctions and ${officerRows.length} officers.`);
 }
 seed().catch((error) => { console.error(error); process.exit(1); });

@@ -4,7 +4,7 @@ This runbook is for a disposable Supabase staging project only. It does not auth
 
 ## 1. Readiness verdict
 
-The SQL files are ready in this order: `001`, `002`, `003`, `004`, `005`, `006`, `007`. Migration `003` is the approved legacy decision-log reconciliation. Migration `007` replaces the single-officer incident constraint with per-officer uniqueness and allocates the calculated staffing shortfall. All SQL test scripts start a transaction and end with `rollback`, so successful test execution does not retain their test mutations.
+The SQL files are ready in this order: `001`, `002`, `003`, `004`, `005`, `006`, `007`, `008`. Migration `003` is the approved legacy decision-log reconciliation. Migration `007` replaces the single-officer incident constraint with per-officer uniqueness and allocates the calculated staffing shortfall. Migration `008` synchronizes operational junction coverage with deployed officers and repairs incomplete fictional demo placements without touching historical evidence. All SQL test scripts start a transaction and end with `rollback`, so successful test execution does not retain their test mutations.
 
 Stop before applying anything unless all of these are true:
 
@@ -86,6 +86,7 @@ Any duplicate result is a stop condition. Do not delete or rewrite records autom
 - [ ] `005_atomic_operations_and_realtime_auth.sql`: operational notes, atomic simulation/location/note RPCs, commander-only browser read policies.
 - [ ] `006_officer_mobile_workflows.sql`: officer assignment acknowledgements and isolated field reports; no risk or historical-data mutation.
 - [ ] `007_multi_officer_incident_allocation.sql`: multi-officer recommendations based on required staffing and active incident severity; no historical-data mutation.
+- [ ] `008_officer_coverage_consistency.sql`: operational coverage synchronization and incomplete fictional-placement repair; no historical-data mutation.
 - [ ] `supabase migration list` shows no unexpected remote-only/local-only divergence.
 - [ ] The backup checklist is complete.
 - [ ] The preflight duplicate queries return no rows.
