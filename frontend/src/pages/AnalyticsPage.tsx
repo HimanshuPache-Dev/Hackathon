@@ -31,7 +31,7 @@ export default function AnalyticsPage() {
             <Comparison label="Risk-weighted coverage" before={data.staticRiskWeightedCoverage} after={data.recommendedRiskWeightedCoverage} suffix="%" />
           </section>
           <section className="analytics-card">
-            <div className="card-head"><div><span className="eyebrow">Baseline vs recommended</span><h2>Coverage improvement model</h2></div><span className="scenario-pill">SIMULATED SCENARIO</span></div>
+            <div className="card-head"><div><span className="eyebrow">Baseline vs recommended</span><h2>Coverage improvement model</h2></div><span className="scenario-pill">{data.officerMovementCount} OFFICER{data.officerMovementCount === 1 ? '' : 'S'} RECOMMENDED · SIMULATED</span></div>
             <div className="chart-host">
               <ResponsiveContainer width="100%" height="100%" minWidth={280} minHeight={300}>
                 <BarChart data={chart} margin={{ top: 28, right: 20, left: 0, bottom: 10 }}>
