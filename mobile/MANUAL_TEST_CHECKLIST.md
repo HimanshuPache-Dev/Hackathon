@@ -43,6 +43,16 @@ Use demo-only staging accounts and a disposable staging project with migrations 
 
 ## Notes and field reports
 
+- [ ] Junction search loads all 20 staging junctions without exposing internal credentials.
+- [ ] Manual junction selection, nearest junction, and away-from-listed-junction modes submit successfully.
+- [ ] An implausibly distant nearest junction is not selected silently.
+- [ ] A network failure keeps the incident form and the same idempotency request key for Retry.
+- [ ] Repeating the same request key returns the original report reference and creates no duplicate.
+- [ ] Emergency assistance opens only a confirmation dialog; cancel places no call.
+- [ ] Confirming emergency assistance opens the configured system dialer, never calls automatically, and makes no dispatch claim.
+- [ ] Location sharing opens only the OS share sheet after confirmation and shares an approximate map link without credentials or personal data.
+- [ ] Commander Incident Management shows FIELD REPORTED, officer identity, operational description, and emergency-request intent.
+
 - [ ] Empty operational note is rejected; valid note succeeds.
 - [ ] Invalid optional junction/incident IDs are rejected.
 - [ ] Cross-officer note is forbidden.

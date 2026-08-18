@@ -5,7 +5,7 @@ import { PublicError } from '../middleware/error-handler';
 import { incidentSimulationSchema,uuidParams,validate } from '../middleware/validate';
 const router = Router();
 router.use(requireCommander);
-router.get('/', async (_req,res,next)=>{try{const data=assertDatabase(await supabase.from('incidents').select('*,junctions(junction_id,current_risk_score,current_risk_level),recommendations(id,status,officer_response_status,officer_arrived_at,officers(id,name,badge_code),field_reports(id,note,created_at,report_kind))').order('reported_at',{ascending:false}));res.json({success:true,data})}catch(error){next(error)}});
+router.get('/', async (_req,res,next)=>{try{const data=assertDatabase(await supabase.from('incidents').select('*,junctions(junction_id,current_risk_score,current_risk_level),field_reports(id,note,created_at,report_kind,emergency_requested,officers(id,name,badge_code)),recommendations(id,status,officer_response_status,officer_arrived_at,officers(id,name,badge_code),field_reports(id,note,created_at,report_kind))').order('reported_at',{ascending:false}));res.json({success:true,data})}catch(error){next(error)}});
 
 router.post('/simulate', validate({body:incidentSimulationSchema}),async (req, res, next) => {
   try {

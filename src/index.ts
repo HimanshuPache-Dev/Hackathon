@@ -10,6 +10,7 @@ import junctionsRoutes from './routes/junctions.routes';
 import officersRoutes from './routes/officers.routes';
 import recommendationsRoutes from './routes/recommendations.routes';
 import decisionsRoutes from './routes/decisions.routes';
+import planningRoutes from './routes/planning.routes';
 import { errorHandler,requestId } from './middleware/error-handler';
 import { supabase } from './config/supabase';
 
@@ -29,5 +30,6 @@ app.use('/api/incidents', incidentsRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/decisions', decisionsRoutes);
 app.use('/api/baseline', baselineRoutes);
+app.use('/api/planning', planningRoutes);
 app.use(errorHandler);
 export default app;

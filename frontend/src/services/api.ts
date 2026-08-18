@@ -16,3 +16,4 @@ export const incidentsAPI = { getAll:()=>api.get('/incidents'), simulate:(data:{
 export const recommendationsAPI = { getAll:()=>api.get('/recommendations'), accept:(id:string)=>api.post(`/recommendations/${id}/accept`), reject:(id:string,reason:string)=>api.post(`/recommendations/${id}/reject`,{reason}), modify:(id:string,data:unknown)=>api.post(`/recommendations/${id}/modify`,data) };
 export const baselineAPI = { getMetrics:()=>api.get('/baseline') };
 export const decisionsAPI = { getAll:()=>api.get('/decisions') };
+export const planningAPI = { getAll:()=>api.get('/planning'),generate:(data:{plan_date:string;time_window:string})=>api.post('/planning/generate',data),decide:(id:string,decision:'APPROVED'|'MODIFIED'|'REJECTED',notes?:string)=>api.post(`/planning/${id}/decision`,{decision,notes}) };

@@ -8,6 +8,7 @@ const RecommendationsPage=lazy(()=>import('./pages/RecommendationsPage'));
 const IncidentsPage=lazy(()=>import('./pages/IncidentsPage'));
 const AnalyticsPage=lazy(()=>import('./pages/AnalyticsPage'));
 const AuditPage=lazy(()=>import('./pages/AuditPage'));
+const PlannerPage=lazy(()=>import('./pages/PlannerPage'));
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/incidents" element={<IncidentsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/audit" element={<AuditPage />} />
+          <Route path="/planner" element={<PlannerPage />} />
           <Route path="/junction/:id" element={<JunctionDetailsPage />} />
         </Route>
       </Routes></Suspense>

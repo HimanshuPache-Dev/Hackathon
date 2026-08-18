@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import { Assignment,Officer,Point } from '../src/types';
+import { Assignment,JunctionOption,Officer,Point } from '../src/types';
 const baseUrl=process.env.EXPO_PUBLIC_API_URL??'http://localhost:3001/api';const tokenKey='safeflow_officer_token';const profileKey='safeflow_officer_profile';let token:string|null=null;let unauthorized:()=>void=()=>undefined;
 export class ApiError extends Error{constructor(message:string,public status:number){super(message)}}
 export function onUnauthorized(callback:()=>void){unauthorized=callback;return()=>{unauthorized=()=>undefined}}
@@ -11,5 +11,6 @@ function friendly(status:number,message?:string){if(status===400)return message?
 export const api={
   login:async(badge_code:string,pin:string)=>{const result=await request<{token:string;officer:Officer}>('/auth/officer-login',{method:'POST',body:JSON.stringify({badge_code,pin})});await saveSession(result.token,result.officer);return result.officer},
   startDuty:(id:string,point:Point)=>request<any>(`/officers/${id}/duty/start`,{method:'POST',body:JSON.stringify(point)}),stopDuty:(id:string)=>request<any>(`/officers/${id}/duty/stop`,{method:'POST'}),location:(id:string,point:Point)=>request<any>(`/officers/${id}/location`,{method:'POST',body:JSON.stringify(point)}),
+  junctions:async(id:string)=>{const result=await request<{data:JunctionOption[]}>(`/officers/${id}/junctions`);return result.data},
   assignment:async(id:string)=>{const result=await request<{data:Assignment}>(`/officers/${id}/assignment`);return result.data},accept:(id:string,recommendationId:string)=>request<any>(`/officers/${id}/assignment/${recommendationId}/accept`,{method:'POST',body:'{}'}),reject:(id:string,recommendationId:string,reason:string)=>request<any>(`/officers/${id}/assignment/${recommendationId}/reject`,{method:'POST',body:JSON.stringify({reason})}),arrival:(id:string,junction_id:string)=>request<any>(`/officers/${id}/arrival`,{method:'POST',body:JSON.stringify({junction_id})}),resolution:(id:string,recommendationId:string,note:string)=>request<any>(`/officers/${id}/assignment/${recommendationId}/resolution`,{method:'POST',body:JSON.stringify({note})}),note:(id:string,payload:{note:string;junction_id?:string;incident_id?:string})=>request<any>(`/officers/${id}/notes`,{method:'POST',body:JSON.stringify(payload)}),report:(id:string,payload:any)=>request<any>(`/officers/${id}/report-incident`,{method:'POST',body:JSON.stringify(payload)}),logout:clearOfficerSession,
 };
