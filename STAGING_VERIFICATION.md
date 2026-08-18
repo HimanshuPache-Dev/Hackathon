@@ -1,4 +1,4 @@
-# SafeFlow staging verification and recovery runbook
+# PoliceOps staging verification and recovery runbook
 
 This runbook is for a disposable Supabase staging project only. It does not authorize production deployment. Never paste database passwords, service-role keys, access tokens, or dump contents into Git, terminal transcripts, tickets, or chat.
 
@@ -38,7 +38,7 @@ Example PowerShell setup (use a directory outside this repository):
 
 ```powershell
 $stagingProjectRef = "YOUR_DISPOSABLE_STAGING_PROJECT_REF"
-$backupRoot = "C:\SafeFlow-Backups\staging-before-005"
+$backupRoot = "C:\PoliceOps-Backups\staging-before-005"
 New-Item -ItemType Directory -Path $backupRoot -Force
 ```
 

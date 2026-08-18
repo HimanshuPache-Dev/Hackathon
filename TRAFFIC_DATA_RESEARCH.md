@@ -1,4 +1,4 @@
-# Nagpur SafeFlow traffic-data decision record
+# PoliceOps traffic-data decision record
 
 Status: research only. No provider is configured, and the current planner must remain labelled **FORECAST / MODELLED**.
 

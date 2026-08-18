@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
-import { junctions } from '../data/junctions';
+import { junctionDatasetProvenance, junctionDatasetSummary, junctions } from '../data/junctions';
 import { officers } from '../data/officers';
 import { scenarioInputs } from '../data/scenarios';
 import { calculateRiskScore } from '../src/risk/calculator';
@@ -51,5 +51,6 @@ async function seed() {
     else{const{error}=await supabase.from('officers').insert(row);if(error)throw error}
   }
   console.log(`Seeded ${junctionRows.length} evidence-backed junctions and ${officerRows.length} officers.`);
+  console.log(`Dataset verified from ${junctionDatasetProvenance.workbook}/${junctionDatasetProvenance.worksheet}: ${junctionDatasetSummary.historicalCrashes} crashes, ${junctionDatasetSummary.fatalities} fatalities, ${junctionDatasetSummary.weightedSeverity} weighted severity.`);
 }
 seed().catch((error) => { console.error(error); process.exit(1); });

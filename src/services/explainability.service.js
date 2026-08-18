@@ -3,7 +3,7 @@
  * Explainability Service
  *
  * Generates human-readable explanations for risk scores.
- * This is what makes SafeFlow "explainable AI" instead of a black box.
+ * This is what makes PoliceOps "explainable AI" instead of a black box.
  */
 var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {

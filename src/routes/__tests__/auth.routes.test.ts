@@ -4,7 +4,7 @@ import request from 'supertest';
 const mockMaybeSingle=jest.fn();
 jest.mock('../../config/supabase',()=>({
   supabase:{from:()=>({select:()=>({eq:()=>({maybeSingle:(...args:unknown[])=>mockMaybeSingle(...args)})})})},
-  supabaseAuth:{auth:{signInWithPassword:jest.fn()}},
+  signInCommander:jest.fn(),
 }));
 import authRoutes from '../auth.routes';
 import { errorHandler,requestId } from '../../middleware/error-handler';

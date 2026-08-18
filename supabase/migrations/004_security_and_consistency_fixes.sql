@@ -1,4 +1,4 @@
--- Nagpur SafeFlow security and consistency hardening.
+-- PoliceOps security and consistency hardening.
 -- Additive/non-destructive. Review before applying to any live project.
 
 alter table public.junctions add column if not exists historical_data_period text default 'Source workbook reporting period';

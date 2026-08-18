@@ -1,4 +1,4 @@
-# Nagpur SafeFlow security operations
+# PoliceOps security operations
 
 The API trusts commander accounts only when Supabase Auth sets `app_metadata.role` to `commander`. Do not use editable `user_metadata` for authorization. Assign that role manually through a trusted administrative workflow, then sign in again for a fresh token.
 

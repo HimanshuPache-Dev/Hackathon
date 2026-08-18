@@ -5,11 +5,11 @@ import { subscribeToOperations } from '../services/realtime';
 import { Incident } from '../types';
 import { PageHead } from './AnalyticsPage';
 export default function IncidentsPage(){
-  const[items,setItems]=useState<Incident[]>([]);const[busy,setBusy]=useState('');
-  const load=useCallback(()=>incidentsAPI.getAll().then(r=>setItems(r.data.data)),[]);
+  const[items,setItems]=useState<Incident[]>([]);const[busy,setBusy]=useState('');const[error,setError]=useState('');
+  const load=useCallback(()=>incidentsAPI.getAll().then(r=>{setItems(r.data.data);setError('')}).catch(reason=>setError(reason?.response?.data?.error??'Unable to load incidents.')),[]);
   useEffect(()=>{void load();const unsubscribe=subscribeToOperations(()=>void load());const fallback=window.setInterval(()=>void load(),10000);return()=>{unsubscribe();window.clearInterval(fallback)}},[load]);
-  async function resolve(id:string){setBusy(id);try{await incidentsAPI.resolve(id);await load()}finally{setBusy('')}}
-  return <main className="workspace-page"><PageHead eyebrow="Operational event desk" title="Incident management" copy="Field reports, officer arrival, and on-scene resolution are operational records. Historical evidence remains unchanged."/><section className="incident-grid">{items.map(item=>{
+  async function resolve(id:string){if(busy)return;setBusy(id);setError('');try{await incidentsAPI.resolve(id);await load()}catch(reason:any){setError(reason?.response?.data?.error??'The incident could not be resolved. Refresh and try again.')}finally{setBusy('')}}
+  return <main className="workspace-page"><PageHead eyebrow="Operational event desk" title="Incident management" copy="Field reports, officer arrival, and on-scene resolution are operational records. Historical evidence remains unchanged."/>{error&&<div className="error-banner" role="alert">{error}</div>}<section className="incident-grid">{items.map(item=>{
     const assignments=item.recommendations??[];const intake=item.field_reports?.find(report=>report.report_kind==='FIELD_OBSERVATION');
     const resolutions=assignments.flatMap(value=>(value.field_reports??[]).filter(report=>report.report_kind==='RESOLUTION').map(report=>({...report,officer:value.officers})));
     return <article className={`incident-card ${item.status.toLowerCase()}`} key={item.id}><header><span className="incident-icon"><AlertTriangle/></span><div><span>{item.is_simulated?'SIMULATED INPUT':'FIELD REPORTED'}</span><h3>{item.junction_name}</h3></div><em>{item.status}</em></header><div className="incident-meta"><span>Type<b>{item.incident_type}</b></span><span>Severity<b>{Math.round(item.severity*100)}%</b></span><span>Current risk<b>{item.junctions?.current_risk_score??'—'}</b></span><span>Reported<b>{new Date(item.reported_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</b></span></div>

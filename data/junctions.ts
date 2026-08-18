@@ -337,3 +337,39 @@ export const junctions: Junction[] = [
     sourceUrl: "https://www.inai.ai/img/docs/iraste-nagpur/iRASATE-Detailed-Report.pdf"
   }
 ];
+
+/**
+ * Source-of-truth notes from nagpur20junctionsriskdataset.xlsx.
+ * Crash outcomes and coordinates are source-reported historical FIR evidence.
+ * Severity, score, rank, and tier are transparent project-derived values and
+ * must not be presented as accident probabilities or current predictions.
+ */
+export const junctionDatasetProvenance = {
+  workbook: 'nagpur20junctionsriskdataset.xlsx',
+  worksheet: 'Junctions_20',
+  source: 'iRASTE Nagpur Detailed Report, Table 4.3',
+  period: 'Historical FIR period; verify exact dates because the report is inconsistent',
+  weightedSeverityFormula: '5 × fatalities + 3 × major injuries + 1 × minor injuries',
+  mapVerification: 'All 20 workbook rows are marked Verified',
+} as const;
+
+export const junctionDatasetSummary = junctions.reduce(
+  (summary, junction) => {
+    summary.historicalCrashes += junction.historicalCrashes;
+    summary.fatalities += junction.fatalities;
+    summary.majorInjuries += junction.majorInjuries;
+    summary.minorInjuries += junction.minorInjuries;
+    summary.weightedSeverity += junction.weightedSeverity;
+    summary.tiers[junction.riskTier] = (summary.tiers[junction.riskTier] ?? 0) + 1;
+    return summary;
+  },
+  {
+    junctionCount: junctions.length,
+    historicalCrashes: 0,
+    fatalities: 0,
+    majorInjuries: 0,
+    minorInjuries: 0,
+    weightedSeverity: 0,
+    tiers: {} as Record<string, number>,
+  },
+);

@@ -5,4 +5,4 @@
 3. Select **Simulate labeled incident**, choose collision and 80% severity, then run it.
 4. Show the risk refresh and explainable pending recommendation: severity, coverage gap, nearest available badge, ETA, confidence, and expected risk reduction.
 5. Emphasize **Human review required**. Accept or reject the recommendation and show the dashboard update through Supabase Realtime.
-6. Finish on the baseline comparison and explain that every action is timestamped in `decision_logs`; SafeFlow never autonomously moves an officer.
+6. Finish on the baseline comparison and explain that every action is timestamped in `decision_logs`; PoliceOps never autonomously moves an officer.

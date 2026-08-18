@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { Assignment,JunctionOption,Officer,Point } from '../src/types';
-const baseUrl=process.env.EXPO_PUBLIC_API_URL??'http://localhost:3001/api';const tokenKey='safeflow_officer_token';const profileKey='safeflow_officer_profile';let token:string|null=null;let unauthorized:()=>void=()=>undefined;
+const baseUrl=process.env.EXPO_PUBLIC_API_URL??'http://localhost:3001/api';const tokenKey='policeops_officer_token';const profileKey='policeops_officer_profile';let token:string|null=null;let unauthorized:()=>void=()=>undefined;
 export class ApiError extends Error{constructor(message:string,public status:number){super(message)}}
 export function onUnauthorized(callback:()=>void){unauthorized=callback;return()=>{unauthorized=()=>undefined}}
 export async function restoreOfficerSession(){token=await SecureStore.getItemAsync(tokenKey);const profile=await SecureStore.getItemAsync(profileKey);return token&&profile?JSON.parse(profile) as Officer:null}

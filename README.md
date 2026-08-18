@@ -1,4 +1,4 @@
-# Nagpur SafeFlow
+# PoliceOps
 
 Explainable traffic-risk decision support for Nagpur Traffic Police. The commander web application combines evidence-backed historical junction records, live operational factors, officer coverage, labeled incident simulations, human-reviewed deployment recommendations, and a complete decision audit trail.
 
@@ -71,4 +71,4 @@ The source dataset is represented by `data/junctions.ts`; the seed script import
 
 ## Safety and privacy
 
-SafeFlow is decision support, not autonomous policing. Mutating commander routes require an authenticated Supabase session, every recommendation decision creates an audit entry, and field displays use badge codes. Do not place `.env` files, keys, or personally identifying records in source control.
+PoliceOps is decision support, not autonomous policing. Mutating commander routes require an authenticated Supabase session, every recommendation decision creates an audit entry, and field displays use badge codes. Do not place `.env` files, keys, or personally identifying records in source control.

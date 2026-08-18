@@ -2,7 +2,7 @@
  * Explainability Service
  * 
  * Generates human-readable explanations for risk scores.
- * This is what makes SafeFlow "explainable AI" instead of a black box.
+ * This is what makes PoliceOps "explainable AI" instead of a black box.
  */
 
 import { RiskCalculationResult } from '../risk/calculator';

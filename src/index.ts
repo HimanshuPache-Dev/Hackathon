@@ -1,4 +1,6 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+const localTypeScriptRuntime = [...process.argv, ...process.execArgv].some((value) => value.includes('ts-node'));
+dotenv.config({ override: process.env.NODE_ENV !== 'production' || localTypeScriptRuntime });
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';

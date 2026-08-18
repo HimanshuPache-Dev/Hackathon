@@ -1,7 +1,7 @@
 {
-  "name": "nagpur-safeflow-backend",
+  "name": "policeops-backend",
   "version": "1.0.0",
-  "description": "Express.js backend for Nagpur SafeFlow",
+  "description": "Express.js backend for PoliceOps",
   "main": "dist/server.js",
   "scripts": {
     "dev:ts": "ts-node-dev --respawn --transpile-only src/server.ts",
@@ -10,7 +10,7 @@
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src scripts --ext .ts --max-warnings=0",
-    "dev": "nodemon --exec ts-node src/server.ts",
+    "dev": "node scripts/dev-server.cjs",
     "test:explainability": "ts-node src/services/test-explainability.ts",
     "build": "tsc",
     "start": "node dist/server.js",

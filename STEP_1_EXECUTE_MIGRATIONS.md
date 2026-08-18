@@ -1,4 +1,4 @@
-# Step 1 — Execute SafeFlow migrations in disposable staging
+# Step 1 — Execute PoliceOps migrations in disposable staging
 
 This procedure is for a separate, disposable Supabase staging project only. It does not authorize a production migration or deployment. Never paste passwords, access tokens, database URLs, service-role keys, personal information, or exact coordinates into this file, Git, chat, screenshots, or command output.
 
