@@ -25,6 +25,7 @@ export const arrivalSchema=z.object({junction_id:z.string().uuid()}).strict();
 export const notesSchema=z.object({notes:z.string().trim().max(1000).optional()}).strict();
 export const operationalNoteSchema=z.object({note:z.string().trim().min(1).max(2000),junction_id:z.string().uuid().optional(),incident_id:z.string().uuid().optional()}).strict();
 export const officerAssignmentRejectSchema=z.object({reason:z.string().trim().min(3).max(1000)}).strict();
+export const assignmentResolutionSchema=z.object({note:z.string().trim().min(3).max(2000)}).strict();
 export const fieldReportSchema=z.object({incident_type:z.enum(['COLLISION','CONGESTION','OBSTRUCTION','MEDICAL_EMERGENCY','OTHER']),severity:z.number().min(0).max(1),note:z.string().trim().min(3).max(2000),latitude:z.number().min(-90).max(90),longitude:z.number().min(-180).max(180),junction_id:z.string().uuid().optional()}).strict();
 export const rejectionSchema=z.object({reason:z.string().trim().min(3).max(1000)}).strict();
 export const modificationSchema=z.object({newOfficerId:z.string().uuid(),newJunctionId:z.string().uuid(),notes:z.string().trim().min(3).max(1000)}).strict();
